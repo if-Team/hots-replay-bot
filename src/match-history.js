@@ -25,7 +25,7 @@ const histories = col => ({
   date: col[10]
 })
 
-async function run (playerId, lang = 'English') {
+async function parse (playerId, lang = 'English') {
   const browser = await puppeteer.launch()
   const options = { waitUntil: 'networkidle' }
 
@@ -47,6 +47,4 @@ async function run (playerId, lang = 'English') {
   return { gamesPlayed, winPercent, matches }
 }
 
-run(8816804, '한국어')
-  .then(res => console.log(res))
-  .catch(err => console.error(err))
+module.exports = parse
