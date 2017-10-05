@@ -1,9 +1,9 @@
 const puppeteer = require('puppeteer')
 const url = 'https://www.hotslogs.com/Player/MatchHistory?PlayerID='
 
-const dropdown = () => Array
+const dropdown = text => Array
   .from(document.querySelectorAll('.rddlItem'))
-  .find(item => item.textContent === 'Quick Match').click()
+  .forEach(item => item.textContent === text && item.click())
 
 const numbers = () => Array
   .from(document.querySelectorAll('.RadGridMatchHistoryFooter strong'))
@@ -13,7 +13,7 @@ const columns = () => Array
   .from(document.querySelectorAll('.dataTable tbody tr'))
   .map(row => Array.from(row.getElementsByTagName('td')).map(c => c.textContent))
 
-const histories = cols => cols.map(col => ({
+const histories = col => ({
   replayId: parseInt(col[1]),
   mapName: col[2],
   length: col[3],
@@ -23,25 +23,30 @@ const histories = cols => cols.map(col => ({
   mmr: parseInt(col[8]),
   mmrDiff: parseInt(col[9]),
   date: col[10]
-}))
+})
 
-async function run (playerId) {
+async function run (playerId, lang = 'English') {
   const browser = await puppeteer.launch()
   const options = { waitUntil: 'networkidle' }
 
   const page = await browser.newPage()
   await page.goto(url + playerId, options)
 
-  await page.evaluate(dropdown)
+  if (lang !== 'English') {
+    await page.evaluate(dropdown, lang)
+    await page.waitForNavigation(options)
+  }
+
+  await page.evaluate(dropdown, 'Quick Match')
   await page.waitForNavigation(options)
 
-  const matches = histories(await page.evaluate(columns))
+  const matches = (await page.evaluate(columns)).map(histories)
   const [gamesPlayed, winPercent] = await page.evaluate(numbers)
 
   await browser.close()
   return { gamesPlayed, winPercent, matches }
 }
 
-run(8816804)
+run(8816804, '한국어')
   .then(res => console.log(res))
   .catch(err => console.error(err))
