@@ -5,6 +5,7 @@ const Telegraf = require('telegraf')
 const commandParts = require('telegraf-command-parts')
 
 const entryCommand = require('./commands/entry')
+const searchCommand = require('./commands/search')
 const subscribeCommand = require('./commands/subscribe')
 const unsubscribeCommand = require('./commands/unsubscribe')
 
@@ -28,6 +29,7 @@ async function start () {
   app.command('subscribe', subscribeCommand(db))
   app.command('unsubscribe', unsubscribeCommand(db))
   app.command('entry', entryCommand(db))
+  app.command('search', searchCommand(db))
 
   app.startPolling()
   require('./workers/watcher')(app, db)
