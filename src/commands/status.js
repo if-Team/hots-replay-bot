@@ -1,10 +1,18 @@
 const matchHistory = require('../workers/match-history')
+const url = 'https://www.hotslogs.com/Player/MatchSummaryContainer?ReplayID='
+const gameTypes = { 'Quick Match': '빠른 대전', 'Unranked Draft': '일반 선발전', 'Hero League': '영웅 리그', 'Team League': '팀 리그', 'Brawl': '난투' }
 
 const moment = require('moment')
 moment.locale('ko')
 
 module.exports = db => async ctx => {
+  const { command } = ctx.state
+  if (!command.args) return ctx.reply('Usage: /status <PlayerID>')
+
   try {
+    const playerId = parseInt(command.splitArgs[0])
+    ctx.reply(`Getting information of PlayerID ${playerId}...`)
+
     const data = await matchHistory(playerId)
     const messages = Object.keys(data).map(type => {
       const { name, gamesPlayed, winPercent, matches } = data[type]
@@ -22,6 +30,7 @@ module.exports = db => async ctx => {
 
     ctx.reply(messages.join('\n\n'), { parse_mode: 'Markdown' })
   } catch (err) {
+    console.error(err)
     ctx.reply('Error occurred: ' + err.messages)
   }
 }

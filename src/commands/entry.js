@@ -1,6 +1,3 @@
-const url = 'https://www.hotslogs.com/Player/MatchSummaryContainer?ReplayID='
-const gameTypes = { 'Quick Match': '빠른 대전', 'Unranked Draft': '일반 선발전', 'Hero League': '영웅 리그', 'Team League': '팀 리그', 'Brawl': '난투' }
-
 module.exports = db => ctx => {
   const { command, subscription } = ctx.state
   if (!subscription) return ctx.reply('Please /subscribe first!')
