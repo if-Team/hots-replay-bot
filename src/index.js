@@ -1,17 +1,22 @@
 require('dotenv').config()
 
 const Telegraf = require('telegraf')
-const LocalSession = require('telegraf-session-local')
+const LocalStorage = require('./local-storage')
+
+const entryCommand = require('./commands/entry')
+const subscribeCommand = require('./commands/subscribe')
+const unsubscribeCommand = require('./commands/unsubscribe')
 
 async function start () {
+  const db = LocalStorage(process.env.DB_PATH)
+  db.defaults({ chats: [] }).write()
+
   const app = new Telegraf(process.env.BOT_TOKEN)
-  app.use(new LocalSession({ database: process.env.DB_PATH }).middleware())
   app.options.username = (await app.telegram.getMe()).username
 
-  app.command('start', ctx => {
-    ctx.session.count = ctx.session.count || 0
-    ctx.reply(`hello ${++ctx.session.count}`)
-  })
+  app.command('subscribe', subscribeCommand(db))
+  app.command('unsubscribe', unsubscribeCommand(db))
+  app.command('entry', entryCommand(db))
 
   app.startPolling()
 }
