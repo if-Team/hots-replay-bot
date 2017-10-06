@@ -1,7 +1,3 @@
-const onPlayerId = (db, ctx, playerId) => {
-
-}
-
 module.exports = db => ctx => {
   const { command, subscription } = ctx.state
   if (!subscription) return ctx.reply('Please /subscribe first!')
@@ -24,5 +20,5 @@ module.exports = db => ctx => {
     .push({ playerId, date: new Date() })
     .write()
 
-  ctx.reply(`Removed entry: PlayerID ${playerId}`)
+  ctx.reply(`Added entry: PlayerID ${playerId}`)
 }

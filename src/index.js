@@ -10,7 +10,7 @@ const unsubscribeCommand = require('./commands/unsubscribe')
 
 async function start () {
   const db = LocalStorage(process.env.DB_PATH)
-  db.defaults({ chats: [] }).write()
+  db.defaults({ chats: [], entries: [] }).write()
 
   const app = new Telegraf(process.env.BOT_TOKEN)
   app.options.username = (await app.telegram.getMe()).username
@@ -30,8 +30,9 @@ async function start () {
   app.command('entry', entryCommand(db))
 
   app.startPolling()
+  require('./workers/watcher')(app, db)
 }
 
 start()
-  .then(console.log)
+  .then(() => console.log('bot running'))
   .catch(console.error)
