@@ -2,15 +2,23 @@ const moment = require('moment')
 const puppeteer = require('puppeteer')
 
 const url = 'https://www.hotslogs.com/Player/MatchHistory?PlayerID='
-const options = { waitUntil: 'networkidle', networkIdleTimeout: 1000 }
+const options = { waitUntil: 'networkidle', networkIdleTimeout: 5000 }
 const gameTypes = ['Quick Match', 'Unranked Draft', 'Hero League', 'Team League', 'Brawl']
 
 const heading = () => document
-  .getElementById('h1Title').textContent.split(':')[1].trim()
+  .getElementById('h1Title').textContent.split(':')[1]
 
-const dropdown = text => Array
-  .from(document.querySelectorAll('.rddlItem'))
-  .find(item => item.textContent && item.textContent.trim() === text).click()
+const dropdown = text => {
+  const item = Array
+    .from(document.querySelectorAll('.rddlItem'))
+    .find(item => item.textContent && item.textContent.trim() === text)
+
+  if (!item) return 1
+  if (item.classList.contains('rddlItemSelected')) return 0
+
+  item.click()
+  return 2
+}
 
 const numbers = () => Array
   .from(document.querySelectorAll('.RadGridMatchHistoryFooter strong'))
@@ -33,8 +41,8 @@ const histories = col => ({
 })
 
 async function matchHistory (playerId, headless = true) {
-  const browser = await puppeteer.launch({ headless })
   const result = await Promise.all(gameTypes.map(async type => {
+    const browser = await puppeteer.launch({ headless })
     const page = await browser.newPage()
 
     await page.goto(url + playerId, options)
@@ -43,18 +51,17 @@ async function matchHistory (playerId, headless = true) {
     await page.evaluate(dropdown, '한국어')
     await page.waitForNavigation(options)
 
-    try {
-      await page.evaluate(dropdown, type)
-      await page.waitForNavigation(options)
-    } catch (err) { return {} }
+    const status = await page.evaluate(dropdown, type)
+    if (status === 1) return {}
+    if (status === 2) await page.waitForNavigation(options)
 
     const matches = (await page.evaluate(columns)).map(histories)
     const [gamesPlayed, winPercent] = await page.evaluate(numbers)
 
-    return { [gameType]: { gamesPlayed, winPercent, matches, name } }
+    await browser.close()
+    return { [type]: { gamesPlayed, winPercent, matches, name } }
   }))
 
-  await browser.close()
   return Object.assign({}, ...result)
 }
 
