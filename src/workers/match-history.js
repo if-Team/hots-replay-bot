@@ -1,8 +1,10 @@
-const moment = require('moment')
 const puppeteer = require('puppeteer')
+const options = { waitUntil: 'networkidle', networkIdleTimeout: 5000 }
+
+const moment = require('moment')
+moment.locale('ko')
 
 const url = 'https://www.hotslogs.com/Player/MatchHistory?PlayerID='
-const options = { waitUntil: 'networkidle', networkIdleTimeout: 5000 }
 const gameTypes = ['Quick Match', 'Unranked Draft', 'Hero League', 'Team League', 'Brawl']
 
 const heading = () => document
