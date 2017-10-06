@@ -1,3 +1,3 @@
 module.exports = (app, db) => {
-  console.log(db.get('entries').value())
+  const entries = db.get('entries').value()
 }

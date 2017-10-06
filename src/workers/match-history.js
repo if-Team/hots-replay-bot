@@ -11,7 +11,7 @@ const dropdown = text => Array
 
 const numbers = () => Array
   .from(document.querySelectorAll('.RadGridMatchHistoryFooter strong'))
-  .map(number => parseInt(number.textContent))
+  .map(number => parseFloat(number.textContent))
 
 const columns = () => Array
   .from(document.querySelectorAll('.dataTable tbody tr'))
