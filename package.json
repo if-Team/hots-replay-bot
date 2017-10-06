@@ -24,7 +24,8 @@
     "lowdb": "^1.0.0",
     "moment": "^2.18.1",
     "puppeteer": "^0.11.0",
-    "telegraf": "^3.12.1"
+    "telegraf": "^3.12.1",
+    "telegraf-command-parts": "^1.0.3"
   },
   "devDependencies": {
     "standard": "^10.0.3"
